@@ -55,10 +55,11 @@ func TestSearchMaps(t *testing.T) {
 				Explain(true).
 				Sort(FieldSort("field_1", OrderDesc)).
 				Sort(FieldSort("field_2", OrderAsc)).
-				Sort(GeoSort(OrderAsc).
+				Sort(GeoSort("geo_loc").
 					DistanceType(GeoDistanceArc).
 					DistanceUnit(DistanceUnitKilometer).
-					GeoPoint(&GeoPoint{Lat: 50, Lon: 60}),
+					GeoPoint(&GeoPoint{Lat: 50, Lon: 60}).
+					Order(OrderAsc),
 				).
 				SourceIncludes("field_1", "field_2").
 				SourceExcludes("field_3").
@@ -122,7 +123,7 @@ func TestSearchMaps(t *testing.T) {
 						"order":         "asc",
 						"distance_type": "arc",
 						"unit":          "km",
-						"point": map[string]interface{}{
+						"geo_loc": map[string]interface{}{
 							"lat": 50,
 							"lon": 60,
 						},

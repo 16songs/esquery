@@ -3,21 +3,20 @@ package esquery
 import "github.com/fatih/structs"
 
 type GeoSorting struct {
-	params geoSortParams
+	pointField string
+	params     geoSortParams
 }
 
 type geoSortParams struct {
-	Order          Order           `structs:"order"`
-	Point          GeoPoint        `structs:"point"`
+	Order          Order           `structs:"order,omitempty"`
+	Point          *GeoPoint       `structs:"point,omitempty"`
 	DistanceType   GeoDistanceType `structs:"distance_type,string,omitempty"`
 	Unit           DistanceUnit    `structs:"unit,string,omitempty"`
 	IgnoreUnmapped *bool           `structs:"ignore_unmapped,omitempty"`
 }
 
-func GeoSort(order Order) *GeoSorting {
-	return &GeoSorting{
-		params: geoSortParams{Order: order},
-	}
+func GeoSort(pointField string) *GeoSorting {
+	return &GeoSorting{pointField: pointField}
 }
 
 func (s *GeoSorting) DistanceType(distanceType GeoDistanceType) *GeoSorting {
@@ -41,13 +40,16 @@ func (s *GeoSorting) Order(order Order) *GeoSorting {
 }
 
 func (s *GeoSorting) GeoPoint(point *GeoPoint) *GeoSorting {
-	s.params.Point = *point
+	s.params.Point = point
 	return s
 }
 
 func (s *GeoSorting) Map() map[string]interface{} {
+	m := structs.Map(s.params)
+	m[s.pointField] = m["point"]
+	delete(m, "point")
 	return map[string]interface{}{
-		"_geo_distance": structs.Map(s.params),
+		"_geo_distance": m,
 	}
 }
 
