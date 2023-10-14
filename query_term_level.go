@@ -24,7 +24,7 @@ func (q *ExistsQuery) Map() map[string]interface{} {
 	}
 }
 
-//----------------------------------------------------------------------------//
+// ----------------------------------------------------------------------------//
 
 // IDsQuery represents a query of type "ids", as described in:
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-ids-query.html
@@ -49,7 +49,7 @@ func (q *IDsQuery) Map() map[string]interface{} {
 	return structs.Map(q)
 }
 
-//----------------------------------------------------------------------------//
+// ----------------------------------------------------------------------------//
 
 // PrefixQuery represents query of type "prefix", as described in:
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-prefix-query.html
@@ -91,7 +91,7 @@ func (q *PrefixQuery) Map() map[string]interface{} {
 	}
 }
 
-//----------------------------------------------------------------------------//
+// ----------------------------------------------------------------------------//
 
 // RangeQuery represents a query of type "range", as described in:
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-range-query.html
@@ -207,7 +207,7 @@ func (a RangeRelation) String() string {
 	}
 }
 
-//----------------------------------------------------------------------------//
+// ----------------------------------------------------------------------------//
 
 // RegexpQuery represents a query of type "regexp", as described in:
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-regexp-query.html
@@ -280,7 +280,7 @@ func (q *RegexpQuery) Map() map[string]interface{} {
 	}
 }
 
-//----------------------------------------------------------------------------//
+// ----------------------------------------------------------------------------//
 
 // Wildcard creates a new query of type "wildcard" on the provided field and
 // using the provided regular expression value. Internally, wildcard queries
@@ -297,7 +297,7 @@ func Wildcard(field, value string) *RegexpQuery {
 	}
 }
 
-//----------------------------------------------------------------------------//
+// ----------------------------------------------------------------------------//
 
 // FuzzyQuery represents a query of type "fuzzy", as described in:
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-fuzzy-query.html
@@ -374,7 +374,7 @@ func (q *FuzzyQuery) Map() map[string]interface{} {
 	}
 }
 
-//----------------------------------------------------------------------------//
+// ----------------------------------------------------------------------------//
 
 // TermQuery represents a query of type "term", as described in:
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-term-query.html
@@ -421,7 +421,7 @@ func (q *TermQuery) Map() map[string]interface{} {
 	}
 }
 
-//----------------------------------------------------------------------------//
+// ----------------------------------------------------------------------------//
 
 // TermsQuery represents a query of type "terms", as described in:
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-query.html
@@ -463,7 +463,7 @@ func (q TermsQuery) Map() map[string]interface{} {
 	return map[string]interface{}{"terms": innerMap}
 }
 
-//----------------------------------------------------------------------------//
+// ----------------------------------------------------------------------------//
 
 // TermsSetQuery represents a query of type "terms_set", as described in:
 // https://www.elastic.co/guide/en/elasticsearch/reference/current/query-dsl-terms-set-query.html
@@ -517,4 +517,42 @@ func (q TermsSetQuery) Map() map[string]interface{} {
 			q.field: structs.Map(q.params),
 		},
 	}
+}
+
+type GeoDistanceQuery struct {
+	params geoDistanceParams
+	filed  string
+}
+
+type geoDistanceParams struct {
+	Distance     string          `structs:"distance,omitempty"`
+	DistanceType GeoDistanceType `structs:"distance_type,string,omitempty"`
+	GeoPoint     *GeoPoint       `structs:"location,omitempty"`
+}
+
+func GeoDistance(filed string) *GeoDistanceQuery {
+	return &GeoDistanceQuery{filed: filed}
+}
+
+func (q *GeoDistanceQuery) Distance(distance string) *GeoDistanceQuery {
+	q.params.Distance = distance
+	return q
+}
+
+func (q *GeoDistanceQuery) DistanceType(distanceType GeoDistanceType) *GeoDistanceQuery {
+	q.params.DistanceType = distanceType
+	return q
+}
+
+func (q *GeoDistanceQuery) GeoPoint(point *GeoPoint) *GeoDistanceQuery {
+	q.params.GeoPoint = point
+	return q
+}
+
+func (q *GeoDistanceQuery) Map() map[string]interface{} {
+	m := structs.Map(q.params)
+	m[q.filed] = m["location"]
+	delete(m, "location")
+	response := map[string]interface{}{"geo_distance": m}
+	return response
 }

@@ -147,5 +147,32 @@ func TestTermLevel(t *testing.T) {
 				},
 			},
 		},
+		{
+			"geo_distance_default",
+			GeoDistance("custom_geo_field").Distance("100km").GeoPoint(&GeoPoint{Lat: 40, Lon: 70}),
+			map[string]interface{}{
+				"geo_distance": map[string]interface{}{
+					"distance": "100km",
+					"custom_geo_field": map[string]interface{}{
+						"lat": 40,
+						"lon": 70,
+					},
+				},
+			},
+		},
+		{
+			"geo_distance_arc",
+			GeoDistance("custom_geo_field").Distance("100m").GeoPoint(&GeoPoint{Lat: 50, Lon: 70}).DistanceType(GeoDistanceArc),
+			map[string]interface{}{
+				"geo_distance": map[string]interface{}{
+					"distance": "100m",
+					"custom_geo_field": map[string]interface{}{
+						"lat": 50,
+						"lon": 70,
+					},
+					"distance_type": "arc",
+				},
+			},
+		},
 	})
 }

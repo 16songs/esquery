@@ -53,8 +53,13 @@ func TestSearchMaps(t *testing.T) {
 				Size(30).
 				From(5).
 				Explain(true).
-				Sort("field_1", OrderDesc).
-				Sort("field_2", OrderAsc).
+				Sort(FieldSort("field_1", OrderDesc)).
+				Sort(FieldSort("field_2", OrderAsc)).
+				Sort(GeoSort(OrderAsc).
+					DistanceType(GeoDistanceArc).
+					DistanceUnit(DistanceUnitKilometer).
+					GeoPoint(&GeoPoint{Lat: 50, Lon: 60}),
+				).
 				SourceIncludes("field_1", "field_2").
 				SourceExcludes("field_3").
 				Timeout(time.Duration(20000000000)),
@@ -113,6 +118,15 @@ func TestSearchMaps(t *testing.T) {
 				"sort": []map[string]interface{}{
 					{"field_1": map[string]interface{}{"order": "desc"}},
 					{"field_2": map[string]interface{}{"order": "asc"}},
+					{"_geo_distance": map[string]interface{}{
+						"order":         "asc",
+						"distance_type": "arc",
+						"unit":          "km",
+						"point": map[string]interface{}{
+							"lat": 50,
+							"lon": 60,
+						},
+					}},
 				},
 				"_source": map[string]interface{}{
 					"includes": []string{"field_1", "field_2"},
